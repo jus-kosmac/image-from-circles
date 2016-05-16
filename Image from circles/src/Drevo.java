@@ -45,7 +45,7 @@ public class Drevo {
 		return new Color(rdeca / steviloPikslov, zelena / steviloPikslov, modra / steviloPikslov);
 	}
 	
-	public static Drevo vsebujeTocko(Drevo drevo, int x, int y) {
+	public static Drevo vsebujeTocko(Drevo drevo, int x, int y) {	
 		if (drevo.zgorajLevo == null && drevo.zgorajDesno == null && drevo.spodajLevo == null && drevo.spodajDesno == null) {
 			return drevo;
 		} else {
