@@ -18,16 +18,11 @@ public class Platno extends JPanel implements MouseMotionListener {
 	 * Create the panel.
 	 * @throws IOException 
 	 */
-	public Platno(String imeDatoteke) throws IOException {
+	public Platno(BufferedImage slika) throws IOException {
 		super();
-		novaSlika(imeDatoteke);
 		this.setBackground(Color.BLACK);
 		addMouseMotionListener(this);
-	}
-	
-	public void novaSlika(String ime) throws IOException {
-		File datoteka = new File(ime);
-		BufferedImage slika = ImageIO.read(datoteka);
+
 		drevo = new Drevo(slika, 0, 0, slika.getWidth(), slika.getHeight());
 		drevo.razpadlo = true;
 	}
