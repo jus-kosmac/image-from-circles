@@ -12,6 +12,7 @@ import java.util.Random;
 
 import javax.imageio.ImageIO;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -32,8 +33,10 @@ public class Okno extends JFrame implements ActionListener {
 	private JMenuItem izhodMenu;
 	private JMenuItem krogecMenu;
 	private JMenuItem trikotnikMenu;
+	private JMenuItem paralelogramMenu;
+	private JMenuItem osemkotnikMenu;
 	
-	final String[] dovoljeneKoncnice = new String[]{".jpg", ".bmp", ".png"};
+	final String[] dovoljeneKoncnice = new String[]{"jpg", "bmp", "png"};
 
 	
 	public Okno() throws IOException {
@@ -43,8 +46,8 @@ public class Okno extends JFrame implements ActionListener {
 		File mapa = new File("./slike");
 		File[] seznamDatotek = mapa.listFiles();
 		for (File datoteka : seznamDatotek) {
-			if (datoteka.isFile()) { // && Arrays.asList(dovoljeneKoncnice).contains(datoteka.getName().substring(datoteka.getName().lastIndexOf(".") + 1))) {
-				// TODO: preveri končnice datotek (SLIKE!)
+			if (datoteka.isFile() && 
+				Arrays.asList(dovoljeneKoncnice).contains(datoteka.getName().substring(datoteka.getName().lastIndexOf(".") + 1))) {
 				seznamSlik.add("./slike/" + datoteka.getName());
 			}
 		}
@@ -73,18 +76,24 @@ public class Okno extends JFrame implements ActionListener {
 		izhodMenu = new JMenuItem("Izhod");
 		krogecMenu = new JMenuItem("Krogec");
 		trikotnikMenu = new JMenuItem("Trikotnik");
+		paralelogramMenu = new JMenuItem("Paralelogram");
+		osemkotnikMenu = new JMenuItem("Osemkotnik");
 		
 		datotekaMenu.add(odpriMenu);
 		datotekaMenu.add(shraniMenu);
 		datotekaMenu.add(izhodMenu);
 		oblikaMenu.add(krogecMenu);
 		oblikaMenu.add(trikotnikMenu);
+		oblikaMenu.add(paralelogramMenu);
+		oblikaMenu.add(osemkotnikMenu);
 		
 		odpriMenu.addActionListener(this);
 		shraniMenu.addActionListener(this);
 		izhodMenu.addActionListener(this);
 		krogecMenu.addActionListener(this);
 		trikotnikMenu.addActionListener(this);
+		paralelogramMenu.addActionListener(this);
+		osemkotnikMenu.addActionListener(this);
 		
 		// Gumbi
 		naslednjaSlika = new JButton("Naslednja slika");
@@ -130,10 +139,8 @@ public class Okno extends JFrame implements ActionListener {
 			int rand = new Random().nextInt(seznamSlik.size());
 			try {
 				slika = novaSlika(seznamSlik.get(rand));
-				platno.drevo = new Drevo(slika, 0, 0, slika.getWidth(), slika.getHeight());
-				platno.drevo.razpadlo = true;
-				platno.setPreferredSize(getPreferredSize());
-				platno.repaint();
+				platno.spremeniSliko(slika);
+				this.pack();
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
@@ -141,6 +148,43 @@ public class Okno extends JFrame implements ActionListener {
 		
 		if (e.getSource() == izhodMenu) {
 			System.exit(0);
+		}
+		
+		if (e.getSource() == izrisiSliko) {
+			platno.jeSlika = true;
+			platno.repaint();
+		}
+		
+		if (e.getSource() == ponastaviSliko) {
+			platno.spremeniSliko(platno.slika);
+		}
+		
+		if (e.getSource() == krogecMenu) {
+			platno.oblika = "Krogec";
+			platno.repaint();
+		}
+		
+		if (e.getSource() == trikotnikMenu) {
+			platno.oblika = "Trikotnik";
+			platno.repaint();
+		}
+		
+		if (e.getSource() == paralelogramMenu) {
+			platno.oblika = "Paralelogram";
+			platno.repaint();
+		}
+		
+		if (e.getSource() == osemkotnikMenu) {
+			platno.oblika = "Osemkotnik";
+			platno.repaint();
+		}
+		
+		if (e.getSource() == odpriMenu) {
+			JFileChooser fileChooser = new JFileChooser();
+			int returnValue = fileChooser.showOpenDialog(this);
+			if (returnValue == JFileChooser.APPROVE_OPTION) {
+				
+			}
 		}
 		
 	}
