@@ -17,7 +17,7 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JPanel;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 @SuppressWarnings("serial")
 public class Okno extends JFrame implements ActionListener {
@@ -36,7 +36,7 @@ public class Okno extends JFrame implements ActionListener {
 	private JMenuItem paralelogramMenu;
 	private JMenuItem osemkotnikMenu;
 	
-	final String[] dovoljeneKoncnice = new String[]{"jpg", "bmp", "png"};
+	final String[] dovoljeneKoncnice = new String[]{"jpg", "bmp", "png", "jpeg"};
 
 	
 	public Okno() throws IOException {
@@ -56,6 +56,7 @@ public class Okno extends JFrame implements ActionListener {
 		slika = novaSlika(seznamSlik.get(rand));
 		
 		platno = new Platno(slika);
+
 		this.setTitle("Slika iz krogcev");
 		this.getContentPane().setLayout(new GridBagLayout());
 		GridBagConstraints platnoLayout = new GridBagConstraints();
@@ -181,8 +182,18 @@ public class Okno extends JFrame implements ActionListener {
 		
 		if (e.getSource() == odpriMenu) {
 			JFileChooser fileChooser = new JFileChooser();
+			FileNameExtensionFilter filter = new FileNameExtensionFilter("Image Files", "jpg", "png", "bmp", "jpeg");
+			fileChooser.setFileFilter(filter);
 			int returnValue = fileChooser.showOpenDialog(this);
 			if (returnValue == JFileChooser.APPROVE_OPTION) {
+				File izbranaDatoteka = fileChooser.getSelectedFile();
+				try {
+					BufferedImage slika = ImageIO.read(izbranaDatoteka);
+					platno.spremeniSliko(slika);
+					this.pack();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
 				
 			}
 		}
