@@ -1,4 +1,5 @@
 
+import java.awt.Container;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -8,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Random;
 
 import javax.imageio.ImageIO;
@@ -17,6 +19,7 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 @SuppressWarnings("serial")
@@ -28,6 +31,7 @@ public class Okno extends JFrame implements ActionListener {
 	private JButton ponastaviSliko;
 	private BufferedImage slika;
 	private ArrayList<String> seznamSlik;
+	private ArrayList<String> kopijaSlik;
 	private JMenuItem shraniMenu;
 	private JMenuItem odpriMenu;
 	private JMenuItem izhodMenu;
@@ -43,6 +47,7 @@ public class Okno extends JFrame implements ActionListener {
 		super();
 		
 		seznamSlik = new ArrayList<String>();
+		
 		File mapa = new File("./slike");
 		File[] seznamDatotek = mapa.listFiles();
 		for (File datoteka : seznamDatotek) {
@@ -51,11 +56,27 @@ public class Okno extends JFrame implements ActionListener {
 				seznamSlik.add("./slike/" + datoteka.getName());
 			}
 		}
+		kopijaSlik = new ArrayList<String>(seznamSlik);
+		Collections.shuffle(kopijaSlik);
 		
-		int rand = new Random().nextInt(seznamSlik.size());
-		slika = novaSlika(seznamSlik.get(rand));
 		
-		platno = new Platno(slika);
+		while (kopijaSlik.size() != 0) {
+			try {
+				slika = novaSlika(kopijaSlik.get(0));
+				platno = new Platno(slika);
+				kopijaSlik.remove(0);
+				break;
+			} catch (IOException|NullPointerException e1) {
+				e1.printStackTrace();
+				seznamSlik.remove(kopijaSlik.get(0));
+				kopijaSlik.remove(0);
+			}
+		}
+		
+		if (seznamSlik.size() == 0) {
+			platno = new Platno(true);
+			// NAPIŠI DA NI SLIKE
+		}
 
 		this.setTitle("Slika iz krogcev");
 		this.getContentPane().setLayout(new GridBagLayout());
@@ -137,14 +158,37 @@ public class Okno extends JFrame implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == naslednjaSlika) {
-			int rand = new Random().nextInt(seznamSlik.size());
-			try {
-				slika = novaSlika(seznamSlik.get(rand));
-				platno.spremeniSliko(slika);
-				this.pack();
-			} catch (IOException e1) {
-				e1.printStackTrace();
+			if (kopijaSlik.size() == 0 && seznamSlik.size() != 0) {
+				kopijaSlik = new ArrayList<String>(seznamSlik);
+				Collections.shuffle(kopijaSlik);
 			}
+			
+			while (kopijaSlik.size() != 0) {
+				try {
+					slika = novaSlika(kopijaSlik.get(0));
+					platno.spremeniSliko(slika);
+					kopijaSlik.remove(0);
+					this.pack();
+					break;
+				} catch (IOException|NullPointerException e1) {
+					e1.printStackTrace();
+					seznamSlik.remove(kopijaSlik.get(0));
+					kopijaSlik.remove(0);
+					if (kopijaSlik.size() == 0 && seznamSlik.size() != 0) {
+						kopijaSlik = new ArrayList<String>(seznamSlik);
+						Collections.shuffle(kopijaSlik);
+					}
+					
+				}
+			}
+			
+			if (seznamSlik.size() == 0) {
+				platno.brezSlike();
+				this.pack();
+			}
+			
+			
+			
 		}
 		
 		if (e.getSource() == izhodMenu) {
@@ -152,7 +196,7 @@ public class Okno extends JFrame implements ActionListener {
 		}
 		
 		if (e.getSource() == izrisiSliko) {
-			platno.jeSlika = true;
+			platno.narisiSliko = true;
 			platno.repaint();
 		}
 		
@@ -189,12 +233,42 @@ public class Okno extends JFrame implements ActionListener {
 				File izbranaDatoteka = fileChooser.getSelectedFile();
 				try {
 					BufferedImage slika = ImageIO.read(izbranaDatoteka);
+					platno.niSlike = false;
 					platno.spremeniSliko(slika);
 					this.pack();
-				} catch (IOException e1) {
+				} catch (IOException|NullPointerException e1) {
 					e1.printStackTrace();
+					JOptionPane.showMessageDialog(null, "Slika ni veljavna.", "Slike ni mogoče odpreti" , JOptionPane.INFORMATION_MESSAGE);
 				}
 				
+			}
+		}
+		
+		if (e.getSource() == shraniMenu) {
+			if (platno.niSlike) {
+				JOptionPane.showMessageDialog(null, "Ni slike na zaslonu.", "Ni slike", JOptionPane.INFORMATION_MESSAGE);
+			} else {
+				BufferedImage screenshot = new BufferedImage(platno.slika.getWidth(), platno.slika.getHeight(), BufferedImage.TYPE_INT_ARGB);
+				platno.paint(screenshot.getGraphics());
+				
+				try {
+					JFileChooser fileChooser = new JFileChooser();
+					FileNameExtensionFilter filter = new FileNameExtensionFilter(".png", "png");
+					fileChooser.setFileFilter(filter);
+					int returnValue = fileChooser.showSaveDialog(this);
+					if (returnValue == JFileChooser.APPROVE_OPTION) {
+						File izbranaDatoteka = fileChooser.getSelectedFile();
+						if (!izbranaDatoteka.getPath().toLowerCase().endsWith(".png")) {
+							File popravljenaDatoteka = new File(izbranaDatoteka.getPath() + ".png");
+							ImageIO.write(screenshot, "PNG", popravljenaDatoteka);
+						} else {
+							ImageIO.write(screenshot, "PNG", izbranaDatoteka);
+						}
+					}
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+			}
 			}
 		}
 		

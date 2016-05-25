@@ -1,8 +1,11 @@
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -15,7 +18,8 @@ public class Platno extends JPanel implements MouseMotionListener {
 
 	protected Drevo drevo;
 	protected String oblika;
-	protected boolean jeSlika;
+	protected boolean niSlike;
+	protected boolean narisiSliko;
 	protected BufferedImage slika;
 	/**
 	 * Create the panel.
@@ -26,7 +30,8 @@ public class Platno extends JPanel implements MouseMotionListener {
 		this.setBackground(Color.BLACK);
 		addMouseMotionListener(this);
 		
-		jeSlika = false;
+		narisiSliko = false;
+		niSlike = false;
 		oblika = "Krogec";
 		
 		this.slika = slika;
@@ -34,24 +39,61 @@ public class Platno extends JPanel implements MouseMotionListener {
 		drevo.razpadlo = true;
 	}
 	
+	public Platno(boolean vrednost) {
+		super();
+		this.setBackground(Color.BLACK);
+		addMouseMotionListener(this);
+		
+		narisiSliko = false;
+		niSlike = true;
+		oblika = "Krogec";
+	}
+	
 	public void spremeniSliko(BufferedImage slika) {
-		this.slika = slika;
-		drevo = new Drevo(slika, 0, 0, slika.getWidth(), slika.getHeight());
-		drevo.razpadlo = true;
-		jeSlika = false;
+		if (! niSlike) {
+			this.slika = slika;
+			drevo = new Drevo(slika, 0, 0, slika.getWidth(), slika.getHeight());
+			drevo.razpadlo = true;
+			narisiSliko = false;
+			setSize(getPreferredSize());
+			repaint();
+		}
+	}
+	
+	public void brezSlike() {
+		niSlike = true;
 		setSize(getPreferredSize());
 		repaint();
 	}
 	
 	@Override
 	public Dimension getPreferredSize() {
-		Dimension dimenzija = new Dimension(drevo.bx - drevo.ax, drevo.by - drevo.ay);
-		return dimenzija;
+		if (niSlike) {
+			Dimension dimenzija = new Dimension(500, 500);
+			return dimenzija;
+		} else {
+			Dimension dimenzija = new Dimension(drevo.bx - drevo.ax, drevo.by - drevo.ay);
+			return dimenzija;
+		}
 	}
 
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		if (jeSlika) {
+		if (niSlike) {
+			String napis = "(ni slike)";
+			// nastavimo font za izpis
+			g.setFont(new Font("Helvetica", Font.PLAIN, 30));
+			g.setColor(Color.WHITE);
+			// dobimo objekt fm, ki zna računati vse v zvezi s fontom
+			FontMetrics fm = g.getFontMetrics();
+			// objekt fm vprašamo, kako velik bo naš napis, da ga znamo
+			// centrirati
+			Rectangle2D r = fm.getStringBounds(napis, g);
+			// naredimo nais, centrirano
+			g.drawString(napis, 
+					(int)((getWidth() - r.getWidth())/2),
+					(int)((getHeight() + r.getHeight())/2));
+		} else if (narisiSliko) {
 			g.drawImage(slika, 0, 0, this);
 		} else {
 			narisiDrevo(g, drevo);
@@ -98,7 +140,7 @@ public class Platno extends JPanel implements MouseMotionListener {
 
 	@Override
 	public void mouseMoved(MouseEvent e) {
-		if (drevo.ax <= e.getX() && drevo.bx >= e.getX() && drevo.ay <= e.getY() && drevo.by >= e.getY()) {
+		if (! niSlike && drevo.ax <= e.getX() && drevo.bx >= e.getX() && drevo.ay <= e.getY() && drevo.by >= e.getY()) {
 			Drevo d = Drevo.vsebujeTocko(drevo, e.getX(), e.getY());
 			if (d.zgorajDesno != null) {
 				d.razpadlo = true;
