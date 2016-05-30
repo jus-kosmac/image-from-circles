@@ -9,7 +9,7 @@ public class Aplikacija {
 			okno.pack();
 			okno.setVisible(true);
 		} else {
-			Okno okno = new Okno("./slike");
+			Okno okno = new Okno(".");
 			okno.pack();
 			okno.setVisible(true);
 

@@ -86,7 +86,7 @@ public class Okno extends JFrame implements ActionListener {
 		shraniMenu = new JMenuItem("Shrani sliko");
 		izhodMenu = new JMenuItem("Izhod");
 		izberiMenu = new JMenuItem("Izberi direktorij slik");
-		osveziMenu = new JMenuItem("Osveûi direktorij");
+		osveziMenu = new JMenuItem("Osve≈æi direktorij");
 		krogecMenu = new JMenuItem("Krogec");
 		trikotnikMenu = new JMenuItem("Trikotnik");
 		paralelogramMenu = new JMenuItem("Paralelogram");
@@ -117,7 +117,7 @@ public class Okno extends JFrame implements ActionListener {
 		naslednjaSlika.addActionListener(this);
 		GridBagConstraints naslednjaSlikaLayout = new GridBagConstraints();
 		
-		izrisiSliko = new JButton("Izriöi sliko");
+		izrisiSliko = new JButton("Izri≈°i sliko");
 		izrisiSliko.addActionListener(this);
 		GridBagConstraints izrisiSlikoLayout = new GridBagConstraints();
 
@@ -176,8 +176,6 @@ public class Okno extends JFrame implements ActionListener {
 			
 			while (kopijaSlik.size() != 0) {
 				try {
-					System.out.println(kopijaSlik.get(0));
-					System.out.println(kopijaSlik);
 					slika = novaSlika(kopijaSlik.get(0));
 					platno.niSlike = false;
 					platno.spremeniSliko(slika);
@@ -239,6 +237,7 @@ public class Okno extends JFrame implements ActionListener {
 		if (e.getSource() == osveziMenu) {
 			try {
 				preberiSlike(pot);
+				naslednjaSlika.doClick();
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
@@ -255,6 +254,7 @@ public class Okno extends JFrame implements ActionListener {
 					this.pot = izbranaDatoteka.getPath();
 					System.out.println(pot);
 					preberiSlike(pot);
+					naslednjaSlika.doClick();
 				} catch (IOException|NullPointerException e1) {
 					e1.printStackTrace();
 				}
@@ -277,7 +277,7 @@ public class Okno extends JFrame implements ActionListener {
 					this.pack();
 				} catch (IOException|NullPointerException e1) {
 					e1.printStackTrace();
-					JOptionPane.showMessageDialog(null, "Slika ni veljavna.", "Slike ni mogoËe odpreti" , JOptionPane.INFORMATION_MESSAGE);
+					JOptionPane.showMessageDialog(null, "Slika ni veljavna.", "Slike ni mogoƒçe odpreti" , JOptionPane.INFORMATION_MESSAGE);
 				}
 				
 			}
