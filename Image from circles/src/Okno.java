@@ -33,10 +33,13 @@ public class Okno extends JFrame implements ActionListener {
 	private JMenuItem shraniMenu;
 	private JMenuItem odpriMenu;
 	private JMenuItem izhodMenu;
+	private JMenuItem osveziMenu;
+	private JMenuItem izberiMenu;
 	private JMenuItem krogecMenu;
 	private JMenuItem trikotnikMenu;
 	private JMenuItem paralelogramMenu;
 	private JMenuItem osemkotnikMenu;
+	private String pot;
 	
 	final String[] dovoljeneKoncnice = new String[]{"jpg", "bmp", "png", "jpeg"};
 
@@ -44,19 +47,8 @@ public class Okno extends JFrame implements ActionListener {
 	public Okno(String pot) throws IOException {
 		super();
 		
-		seznamSlik = new ArrayList<String>();
-		
-		File mapa = new File(pot);
-		File[] seznamDatotek = mapa.listFiles();
-		for (File datoteka : seznamDatotek) {
-			if (datoteka.isFile() && 
-				Arrays.asList(dovoljeneKoncnice).contains(datoteka.getName().substring(datoteka.getName().lastIndexOf(".") + 1))) {
-				seznamSlik.add(pot + "/" + datoteka.getName());
-			}
-		}
-		kopijaSlik = new ArrayList<String>(seznamSlik);
-		Collections.shuffle(kopijaSlik);
-		
+		this.pot = pot;
+		preberiSlike(pot);
 		
 		while (kopijaSlik.size() != 0) {
 			try {
@@ -93,6 +85,8 @@ public class Okno extends JFrame implements ActionListener {
 		odpriMenu = new JMenuItem("Odpri sliko");
 		shraniMenu = new JMenuItem("Shrani sliko");
 		izhodMenu = new JMenuItem("Izhod");
+		izberiMenu = new JMenuItem("Izberi direktorij slik");
+		osveziMenu = new JMenuItem("Osveûi direktorij");
 		krogecMenu = new JMenuItem("Krogec");
 		trikotnikMenu = new JMenuItem("Trikotnik");
 		paralelogramMenu = new JMenuItem("Paralelogram");
@@ -101,6 +95,8 @@ public class Okno extends JFrame implements ActionListener {
 		datotekaMenu.add(odpriMenu);
 		datotekaMenu.add(shraniMenu);
 		datotekaMenu.add(izhodMenu);
+		datotekaMenu.add(izberiMenu);
+		datotekaMenu.add(osveziMenu);
 		oblikaMenu.add(krogecMenu);
 		oblikaMenu.add(trikotnikMenu);
 		oblikaMenu.add(paralelogramMenu);
@@ -109,6 +105,8 @@ public class Okno extends JFrame implements ActionListener {
 		odpriMenu.addActionListener(this);
 		shraniMenu.addActionListener(this);
 		izhodMenu.addActionListener(this);
+		osveziMenu.addActionListener(this);
+		izberiMenu.addActionListener(this);
 		krogecMenu.addActionListener(this);
 		trikotnikMenu.addActionListener(this);
 		paralelogramMenu.addActionListener(this);
@@ -145,6 +143,22 @@ public class Okno extends JFrame implements ActionListener {
 		
 	}
 	
+	public void preberiSlike(String pot) throws IOException {
+		seznamSlik = new ArrayList<String>();
+		
+		File mapa = new File(pot);
+		File[] seznamDatotek = mapa.listFiles();
+		for (File datoteka : seznamDatotek) {
+			if (datoteka.isFile() && 
+				Arrays.asList(dovoljeneKoncnice).contains(datoteka.getName().substring(datoteka.getName().lastIndexOf(".") + 1))) {
+				seznamSlik.add(pot + File.separator + datoteka.getName());
+				System.out.println(pot + File.separator + datoteka.getName());
+			}
+		}
+		kopijaSlik = new ArrayList<String>(seznamSlik);
+		Collections.shuffle(kopijaSlik);
+	}
+	
 	public BufferedImage novaSlika(String ime) throws IOException {
 		File datoteka = new File(ime);
 		BufferedImage slika = ImageIO.read(datoteka);
@@ -162,7 +176,10 @@ public class Okno extends JFrame implements ActionListener {
 			
 			while (kopijaSlik.size() != 0) {
 				try {
+					System.out.println(kopijaSlik.get(0));
+					System.out.println(kopijaSlik);
 					slika = novaSlika(kopijaSlik.get(0));
+					platno.niSlike = false;
 					platno.spremeniSliko(slika);
 					kopijaSlik.remove(0);
 					this.pack();
@@ -219,6 +236,33 @@ public class Okno extends JFrame implements ActionListener {
 			platno.repaint();
 		}
 		
+		if (e.getSource() == osveziMenu) {
+			try {
+				preberiSlike(pot);
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+		}
+		
+		if (e.getSource() == izberiMenu) {
+			JFileChooser fileChooser = new JFileChooser();
+			fileChooser.setDialogTitle("Izberi direktorij slik");
+		    fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		    int returnValue = fileChooser.showOpenDialog(this);
+		    if (returnValue == JFileChooser.APPROVE_OPTION) {
+				File izbranaDatoteka = fileChooser.getSelectedFile();
+				try {
+					this.pot = izbranaDatoteka.getPath();
+					System.out.println(pot);
+					preberiSlike(pot);
+				} catch (IOException|NullPointerException e1) {
+					e1.printStackTrace();
+				}
+				
+			}
+		    
+		}
+		
 		if (e.getSource() == odpriMenu) {
 			JFileChooser fileChooser = new JFileChooser();
 			FileNameExtensionFilter filter = new FileNameExtensionFilter("Image Files", "jpg", "png", "bmp", "jpeg");
@@ -233,7 +277,7 @@ public class Okno extends JFrame implements ActionListener {
 					this.pack();
 				} catch (IOException|NullPointerException e1) {
 					e1.printStackTrace();
-					JOptionPane.showMessageDialog(null, "Slika ni veljavna.", "Slike ni mogoƒçe odpreti" , JOptionPane.INFORMATION_MESSAGE);
+					JOptionPane.showMessageDialog(null, "Slika ni veljavna.", "Slike ni mogoËe odpreti" , JOptionPane.INFORMATION_MESSAGE);
 				}
 				
 			}
