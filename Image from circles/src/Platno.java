@@ -3,14 +3,13 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
-
-import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
 @SuppressWarnings("serial")
@@ -25,7 +24,7 @@ public class Platno extends JPanel implements MouseMotionListener {
 	 * Create the panel.
 	 * @throws IOException 
 	 */
-	public Platno(BufferedImage slika) throws IOException {
+	public Platno(BufferedImage prvaSlika) throws IOException {
 		super();
 		this.setBackground(Color.BLACK);
 		addMouseMotionListener(this);
@@ -34,7 +33,8 @@ public class Platno extends JPanel implements MouseMotionListener {
 		niSlike = false;
 		oblika = "Krogec";
 		
-		this.slika = slika;
+		
+		this.slika = getScaledImage(prvaSlika);
 		drevo = new Drevo(slika, 0, 0, slika.getWidth(), slika.getHeight());
 		drevo.razpadlo = true;
 	}
@@ -49,9 +49,32 @@ public class Platno extends JPanel implements MouseMotionListener {
 		oblika = "Krogec";
 	}
 	
-	public void spremeniSliko(BufferedImage slika) {
+	private BufferedImage getScaledImage(BufferedImage zacetnaSlika){
+		double sirina = zacetnaSlika.getWidth();
+		double visina = zacetnaSlika.getHeight();
+
+		if (visina > 800 || sirina > 1000) {
+			double razmerje = visina / sirina;
+			if (1000 * razmerje < 800) {
+				sirina = 1000;
+				visina = 1000 * razmerje;
+			} else {
+				sirina = 800 / razmerje;
+				visina = 800;
+			}
+		}
+		
+	    BufferedImage koncnaSlika = new BufferedImage((int) sirina, (int) visina, zacetnaSlika.getType());
+	    Graphics2D g2 = koncnaSlika.createGraphics();
+	    g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+	    g2.drawImage(zacetnaSlika, 0, 0, (int) sirina, (int) visina, null);
+	    g2.dispose();
+	    return koncnaSlika;
+	}
+	
+	public void spremeniSliko(BufferedImage novaSlika) {
 		if (! niSlike) {
-			this.slika = slika;
+			this.slika = getScaledImage(novaSlika);
 			drevo = new Drevo(slika, 0, 0, slika.getWidth(), slika.getHeight());
 			drevo.razpadlo = true;
 			narisiSliko = false;

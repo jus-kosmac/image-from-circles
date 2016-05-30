@@ -1,5 +1,4 @@
 
-import java.awt.Container;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -10,7 +9,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Random;
 
 import javax.imageio.ImageIO;
 import javax.swing.JButton;
@@ -43,17 +41,17 @@ public class Okno extends JFrame implements ActionListener {
 	final String[] dovoljeneKoncnice = new String[]{"jpg", "bmp", "png", "jpeg"};
 
 	
-	public Okno() throws IOException {
+	public Okno(String pot) throws IOException {
 		super();
 		
 		seznamSlik = new ArrayList<String>();
 		
-		File mapa = new File("./slike");
+		File mapa = new File(pot);
 		File[] seznamDatotek = mapa.listFiles();
 		for (File datoteka : seznamDatotek) {
 			if (datoteka.isFile() && 
 				Arrays.asList(dovoljeneKoncnice).contains(datoteka.getName().substring(datoteka.getName().lastIndexOf(".") + 1))) {
-				seznamSlik.add("./slike/" + datoteka.getName());
+				seznamSlik.add(pot + "/" + datoteka.getName());
 			}
 		}
 		kopijaSlik = new ArrayList<String>(seznamSlik);
@@ -75,7 +73,6 @@ public class Okno extends JFrame implements ActionListener {
 		
 		if (seznamSlik.size() == 0) {
 			platno = new Platno(true);
-			// NAPIŠI DA NI SLIKE
 		}
 
 		this.setTitle("Slika iz krogcev");
@@ -122,7 +119,7 @@ public class Okno extends JFrame implements ActionListener {
 		naslednjaSlika.addActionListener(this);
 		GridBagConstraints naslednjaSlikaLayout = new GridBagConstraints();
 		
-		izrisiSliko = new JButton("Izriši sliko");
+		izrisiSliko = new JButton("Izri�i sliko");
 		izrisiSliko.addActionListener(this);
 		GridBagConstraints izrisiSlikoLayout = new GridBagConstraints();
 
@@ -186,9 +183,7 @@ public class Okno extends JFrame implements ActionListener {
 				platno.brezSlike();
 				this.pack();
 			}
-			
-			
-			
+					
 		}
 		
 		if (e.getSource() == izhodMenu) {
@@ -266,7 +261,6 @@ public class Okno extends JFrame implements ActionListener {
 						}
 					}
 				} catch (IOException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 			}
 			}
