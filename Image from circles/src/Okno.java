@@ -28,19 +28,21 @@ public class Okno extends JFrame implements ActionListener {
 	private JButton izrisiSliko;
 	private JButton ponastaviSliko;
 	private BufferedImage slika;
-	private ArrayList<String> seznamSlik;
-	private ArrayList<String> kopijaSlik;
+	private ArrayList<String> seznamSlik; // V seznamu slik so shranjena imena datotek s slikami, ki smo
+										  // jih prebrali iz izbranega direktorija.
+	private ArrayList<String> kopijaSlik; // Iz kopije slik jemljemo slike in jih prikazujemo na zaslonu.
 	private JMenuItem shraniMenu;
 	private JMenuItem odpriMenu;
-	private JMenuItem izhodMenu;
-	private JMenuItem osveziMenu;
-	private JMenuItem izberiMenu;
+	private JMenuItem izhodMenu; 
+	private JMenuItem osveziMenu; // Osvežimo trenutni direktorij slik.
+	private JMenuItem izberiMenu; // Izberemo nov direktorij slik.
 	private JMenuItem krogecMenu;
 	private JMenuItem trikotnikMenu;
 	private JMenuItem paralelogramMenu;
 	private JMenuItem osemkotnikMenu;
-	private String pot;
+	private String pot; // Pot je naslov trenutnega direktorija za slike.
 	
+	// Seznam dovoljenih končnic za slikovne datoteke.
 	final String[] dovoljeneKoncnice = new String[]{"jpg", "bmp", "png", "jpeg"};
 
 	
@@ -48,8 +50,12 @@ public class Okno extends JFrame implements ActionListener {
 		super();
 		
 		this.pot = pot;
+		// Preberemo imena slik iz direktorija.
 		preberiSlike(pot);
 		
+		// Iz kopije slik poskušamo naložiti sliko. Če datoteka v resnici ni slika ali pride do kakšne
+		// druge napake, jo program ujame. "Slabo" sliko izbriše iz kopijeSlik in seznamaSlik.
+		// Če sliko uspešno naloži, pa jo pobriše samo iz kopije, da jo ne moremo odpreti dvakrat zapored.
 		while (kopijaSlik.size() != 0) {
 			try {
 				slika = novaSlika(kopijaSlik.get(0));
@@ -63,10 +69,12 @@ public class Okno extends JFrame implements ActionListener {
 			}
 		}
 		
+		// Če nismo uspeli prebrati nobene slike, potem pokličemo sekundarni konstruktor platna. 
 		if (seznamSlik.size() == 0) {
 			platno = new Platno(true);
 		}
 
+		// V okno dodamo platno.
 		this.setTitle("Slika iz krogcev");
 		this.getContentPane().setLayout(new GridBagLayout());
 		GridBagConstraints platnoLayout = new GridBagConstraints();
@@ -75,7 +83,7 @@ public class Okno extends JFrame implements ActionListener {
 		platnoLayout.gridwidth = 3;
 		this.getContentPane().add(platno, platnoLayout);
 		
-		// Menu
+		// Ustvarimo menuje in podmenuje.
 		JMenuBar menuBar = new JMenuBar();
 		this.setJMenuBar(menuBar);
 		JMenu datotekaMenu = new JMenu("Datoteka");
@@ -112,7 +120,7 @@ public class Okno extends JFrame implements ActionListener {
 		paralelogramMenu.addActionListener(this);
 		osemkotnikMenu.addActionListener(this);
 		
-		// Gumbi
+		// Ustvarimo gumbe in jih dodamo v okno.
 		naslednjaSlika = new JButton("Naslednja slika");
 		naslednjaSlika.addActionListener(this);
 		GridBagConstraints naslednjaSlikaLayout = new GridBagConstraints();
@@ -144,6 +152,7 @@ public class Okno extends JFrame implements ActionListener {
 	}
 	
 	public void preberiSlike(String pot) throws IOException {
+		// Iz direktorija preberemo vse datoteke z ustrezno končnico in imena shranimo v seznamSlik.
 		seznamSlik = new ArrayList<String>();
 		
 		File mapa = new File(pot);
@@ -154,11 +163,14 @@ public class Okno extends JFrame implements ActionListener {
 				seznamSlik.add(pot + File.separator + datoteka.getName());
 			}
 		}
+		
+		// Iz kopije slik bomo dejansko odpirali slike. Kopijo naključno premešano, da ni vedno isti vrsti red slik.
 		kopijaSlik = new ArrayList<String>(seznamSlik);
 		Collections.shuffle(kopijaSlik);
 	}
 	
 	public BufferedImage novaSlika(String ime) throws IOException {
+		// Iz direktorija preberemo sliko z danim imenom in jo vrnemo.
 		File datoteka = new File(ime);
 		BufferedImage slika = ImageIO.read(datoteka);
 		return slika;
@@ -168,14 +180,18 @@ public class Okno extends JFrame implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == naslednjaSlika) {
+			// Če je kopijaSlik prazna, seznamSlik pa ne, pomeni, da smo kopijo do konca izpraznili.
+			// Ustvarimo novo kopijo, da bomo iz nje spet nalagali slike.
 			if (kopijaSlik.size() == 0 && seznamSlik.size() != 0) {
 				kopijaSlik = new ArrayList<String>(seznamSlik);
 				Collections.shuffle(kopijaSlik);
 			}
 			
+			// Ponovno poskušamo naložiti sliko.
 			while (kopijaSlik.size() != 0) {
 				try {
 					slika = novaSlika(kopijaSlik.get(0));
+					// Platno povemo, da bo sedaj naložena nova slika (če slučajno prej ni bilo slike)
 					platno.niSlike = false;
 					platno.spremeniSliko(slika);
 					kopijaSlik.remove(0);
@@ -185,6 +201,10 @@ public class Okno extends JFrame implements ActionListener {
 					e1.printStackTrace();
 					seznamSlik.remove(kopijaSlik.get(0));
 					kopijaSlik.remove(0);
+					// V kopijiSlik so lahko preostale samo "slabe" slike (vse "dobre" smo naprimer že porabili).
+					// V tem primeru moramo ponovno narediti kopijo, da bomo lahko naložili "dobro" sliko.
+					// Sicer bi šli ven iz zanke in ne bi naložili nobene slike, kljub temu, da v direktoriju
+					// obstajajo slike, ki niso "slabe".
 					if (kopijaSlik.size() == 0 && seznamSlik.size() != 0) {
 						kopijaSlik = new ArrayList<String>(seznamSlik);
 						Collections.shuffle(kopijaSlik);
@@ -193,6 +213,7 @@ public class Okno extends JFrame implements ActionListener {
 				}
 			}
 			
+			// Nismo našli nobene slike, ki bo jo lahko naložili. 
 			if (seznamSlik.size() == 0) {
 				platno.brezSlike();
 				this.pack();
@@ -205,6 +226,7 @@ public class Okno extends JFrame implements ActionListener {
 		}
 		
 		if (e.getSource() == izrisiSliko) {
+			// Izriše celotno sliko.
 			platno.narisiSliko = true;
 			platno.repaint();
 		}
@@ -234,6 +256,8 @@ public class Okno extends JFrame implements ActionListener {
 		}
 		
 		if (e.getSource() == osveziMenu) {
+			// Iz trenutnega direktorija še enkrat preberemo slike in naložimo novo sliko
+			// s tem, da simuliramo pritisk gumba naslednjaSlika.
 			try {
 				preberiSlike(pot);
 				naslednjaSlika.doClick();
@@ -243,13 +267,16 @@ public class Okno extends JFrame implements ActionListener {
 		}
 		
 		if (e.getSource() == izberiMenu) {
+			// Ustvarimo objekt razreda JFileChooser.
 			JFileChooser fileChooser = new JFileChooser();
 			fileChooser.setDialogTitle("Izberi direktorij slik");
+			// Izbiramo lahko samo med direktoriji (in ne datotekami).
 		    fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 		    int returnValue = fileChooser.showOpenDialog(this);
 		    if (returnValue == JFileChooser.APPROVE_OPTION) {
 				File izbranaDatoteka = fileChooser.getSelectedFile();
 				try {
+					// Nastavimo novo pot za direktorij slik in preberemo slike.
 					this.pot = izbranaDatoteka.getPath();
 					preberiSlike(pot);
 					naslednjaSlika.doClick();
@@ -263,17 +290,20 @@ public class Okno extends JFrame implements ActionListener {
 		
 		if (e.getSource() == odpriMenu) {
 			JFileChooser fileChooser = new JFileChooser();
+			// Filter nam omogoča, da so uporabniku vidne samo datoteke z ustrezno končnico.
 			FileNameExtensionFilter filter = new FileNameExtensionFilter("Image Files", "jpg", "png", "bmp", "jpeg");
 			fileChooser.setFileFilter(filter);
 			int returnValue = fileChooser.showOpenDialog(this);
 			if (returnValue == JFileChooser.APPROVE_OPTION) {
 				File izbranaDatoteka = fileChooser.getSelectedFile();
 				try {
+					// Poskušamo naložiti sliko.
 					BufferedImage slika = ImageIO.read(izbranaDatoteka);
 					platno.niSlike = false;
 					platno.spremeniSliko(slika);
 					this.pack();
 				} catch (IOException|NullPointerException e1) {
+					// Če je prišlo do napake, to uporabniku sporočimo preko okenca za napake.
 					e1.printStackTrace();
 					JOptionPane.showMessageDialog(null, "Slika ni veljavna.", "Slike ni mogoče odpreti" , JOptionPane.INFORMATION_MESSAGE);
 				}
@@ -285,6 +315,7 @@ public class Okno extends JFrame implements ActionListener {
 			if (platno.niSlike) {
 				JOptionPane.showMessageDialog(null, "Ni slike na zaslonu.", "Ni slike", JOptionPane.INFORMATION_MESSAGE);
 			} else {
+				// V screenshot prerišemo vsebino platna (sliko, kot je trenutno vidna na zaslonu).
 				BufferedImage screenshot = new BufferedImage(platno.slika.getWidth(), platno.slika.getHeight(), BufferedImage.TYPE_INT_ARGB);
 				platno.paint(screenshot.getGraphics());
 				
@@ -295,6 +326,7 @@ public class Okno extends JFrame implements ActionListener {
 					int returnValue = fileChooser.showSaveDialog(this);
 					if (returnValue == JFileChooser.APPROVE_OPTION) {
 						File izbranaDatoteka = fileChooser.getSelectedFile();
+						// Če se ime, ki si ga je uporabnik izbral, ne konča s .png, ročno dodamo končnico .png.
 						if (!izbranaDatoteka.getPath().toLowerCase().endsWith(".png")) {
 							File popravljenaDatoteka = new File(izbranaDatoteka.getPath() + ".png");
 							ImageIO.write(screenshot, "PNG", popravljenaDatoteka);

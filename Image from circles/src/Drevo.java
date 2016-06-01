@@ -13,6 +13,7 @@ public class Drevo {
 		this.bx = bx;
 		this.by = by;
 		
+		// Če ima del slike, ki ga predstavlja drevo, vsaj 2 piksla višine in širine, ustvarimo poddrevesa.
 		if (bx-ax > 2 && by-ay > 2) {
 			int sx = (ax + bx) / 2;
 			int sy = (ay + by) / 2;
@@ -20,11 +21,15 @@ public class Drevo {
 			zgorajDesno = new Drevo(slika, sx, ay, bx, sy);
 			spodajLevo = new Drevo(slika, ax, sy, sx, by);
 			spodajDesno = new Drevo(slika, sx, sy, bx, by);
+			
+			// Izračunamo povprećno barvo iz barv poddreves.
 			int rdeca = (zgorajLevo.barva.getRed() + zgorajDesno.barva.getRed() + spodajLevo.barva.getRed() + spodajDesno.barva.getRed()) / 4;
 			int zelena = (zgorajLevo.barva.getGreen() + zgorajDesno.barva.getGreen() + spodajLevo.barva.getGreen() + spodajDesno.barva.getGreen()) / 4;
 			int modra = (zgorajLevo.barva.getBlue() + zgorajDesno.barva.getBlue() + spodajLevo.barva.getBlue() + spodajDesno.barva.getBlue()) / 4;
 			barva = new Color(rdeca, zelena, modra);
 		} else {
+			// Če pa je del slike, ki ga predstavlja drevo, premajhen, izračunamo povprelje barv vseh pikslov.
+			// Poddreves ne ustvarimo.
 			zgorajLevo = zgorajDesno = spodajLevo = spodajDesno = null;
 			barva = povprecjeBarv(slika, ax, ay, bx, by);
 		}
@@ -32,6 +37,7 @@ public class Drevo {
 	}
 		
 	private Color povprecjeBarv(BufferedImage slika, int ax, int ay, int  bx, int by) {
+		// Sprehodimo se čez vse piksle in izračunamo povprečje barv.
 		int rdeca = 0, zelena = 0, modra = 0;
 		int steviloPikslov = (bx - ax) * (by - ay);
 		for (int i = ax; i < bx; i ++) {
@@ -46,13 +52,15 @@ public class Drevo {
 	}
 	
 	public static Drevo vsebujeTocko(Drevo drevo, int x, int y) {
-		// Vrne prvo nerazpadlo drevo, ki vsebujo točko (x, y).
+		// Vrne prvo nerazpadlo drevo, ki vsebujo točko (x, y). To metodo bomo uporabljali pri sledenju gibov miške.
 		if (drevo.zgorajLevo == null && drevo.zgorajDesno == null && drevo.spodajLevo == null && drevo.spodajDesno == null) {
+			// Če smo prišli že do dna drevesa, vrnemo kar list drevesa, v katerem se trenutno nahajamo.
 			return drevo;
 		} else {
 			if (!drevo.razpadlo) {
 				return drevo;
 			} else {
+				// Metodo pokličemo rekurzivno na ustreznem poddrevesu, glede na to v katerem kvadrantu leži točka.
 				int sx = (drevo.ax + drevo.bx) / 2;
 				int sy = (drevo.ay + drevo.by) / 2;
 				if (x <= sx) {

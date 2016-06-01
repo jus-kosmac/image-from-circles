@@ -77,6 +77,7 @@ public class Platno extends JPanel implements MouseMotionListener {
 	}
 	
 	public void spremeniSliko(BufferedImage novaSlika) {
+		// Metoda se pokliče, ko želimo zamenjati sliko ali ponastaviti trenutno sliko.
 		if (! niSlike) {
 			this.slika = getScaledImage(novaSlika);
 			drevo = new Drevo(slika, 0, 0, slika.getWidth(), slika.getHeight());
@@ -95,6 +96,8 @@ public class Platno extends JPanel implements MouseMotionListener {
 	
 	@Override
 	public Dimension getPreferredSize() {
+		// Če ni slike, nastavimo velikost platna na privzeto vrednost. Sicer pa se platno prilagodi
+		// velikosti slike.
 		if (niSlike) {
 			Dimension dimenzija = new Dimension(500, 500);
 			return dimenzija;
@@ -106,33 +109,34 @@ public class Platno extends JPanel implements MouseMotionListener {
 
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
+		// Če ni slike, izpišemo samo napis.
 		if (niSlike) {
 			String napis = "(ni slike)";
-			// nastavimo font za izpis
 			g.setFont(new Font("Helvetica", Font.PLAIN, 30));
 			g.setColor(Color.WHITE);
-			// dobimo objekt fm, ki zna računati vse v zvezi s fontom
 			FontMetrics fm = g.getFontMetrics();
-			// objekt fm vprašamo, kako velik bo naš napis, da ga znamo
-			// centrirati
 			Rectangle2D r = fm.getStringBounds(napis, g);
-			// naredimo nais, centrirano
 			g.drawString(napis, 
 					(int)((getWidth() - r.getWidth())/2),
 					(int)((getHeight() + r.getHeight())/2));
+		// V primeru, da želimo izrisati celo sliko.
 		} else if (narisiSliko) {
 			g.drawImage(slika, 0, 0, this);
+		// Sicer izrišemo drevo.
 		} else {
 			narisiDrevo(g, drevo);
 		}
 	}
 	
 	public void narisiDrevo(Graphics g, Drevo d) {
+		// Če je drevo že razpadlo, se metoda rekurzivno kliče na vseh poddrevesih.
 		if (d.razpadlo) {
 			narisiDrevo(g, d.spodajDesno);
 			narisiDrevo(g, d.spodajLevo);
 			narisiDrevo(g, d.zgorajDesno);
 			narisiDrevo(g, d.zgorajLevo);
+		// Če obstajajo vsa poddrevesa (preverimo samo desnega zgornjega), potem nismo prispeli do lista.
+		// Izrišemo ustrezno obliko s povprečno barvo, ki jo ima shranjeno drevo.
 		} else if (d.zgorajDesno != null) {
 			g.setColor(d.barva);
 			if (oblika == "Krogec") {
@@ -153,6 +157,7 @@ public class Platno extends JPanel implements MouseMotionListener {
 				int s2y = d.ay + (4 * razlikaY) / 5;
 				g.fillPolygon(new int[]{d.ax, s1x, s2x, d.bx, d.bx, s2x, s1x, d.ax}, new int[]{s1y, d.ay, d.ay, s1y, s2y, d.by, d.by, s2y}, 8);
 			}
+		// Sicer smo prispeli do lista. Izrišemo kar cel pravokotnik, da zapolnimo črne vrzeli. 
 		} else {
 			g.setColor(d.barva);
 			g.fillRect(d.ax, d.ay, d.bx - d.ax, d.by - d.ay);
@@ -167,6 +172,8 @@ public class Platno extends JPanel implements MouseMotionListener {
 
 	@Override
 	public void mouseMoved(MouseEvent e) {
+		// Spremljamo gibanje miške. Če se z miško zapeljemo čez sliko, mora najvišji koren v drevesu, ki
+		// vsebuje trenutno pozicijo miške, razpasti na svoja poddrevesa.
 		if (! niSlike && drevo.ax <= e.getX() && drevo.bx >= e.getX() && drevo.ay <= e.getY() && drevo.by >= e.getY()) {
 			Drevo d = Drevo.vsebujeTocko(drevo, e.getX(), e.getY());
 			if (d.zgorajDesno != null) {
