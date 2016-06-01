@@ -16,15 +16,16 @@ import javax.swing.JPanel;
 public class Platno extends JPanel implements MouseMotionListener {
 
 	protected Drevo drevo;
-	protected String oblika;
-	protected boolean niSlike;
-	protected boolean narisiSliko;
+	protected String oblika; // Oblika likov, ki se izrisujejo na zaslonu.
+	protected boolean niSlike; //  Pove, da trenutno ni nobene slike (v direktoriju ni nobene veljavne slike).
+	protected boolean narisiSliko; // Na zaslon moramo izrisati celo sliko namesto drevesa. 
 	protected BufferedImage slika;
 	/**
 	 * Create the panel.
 	 * @throws IOException 
 	 */
 	public Platno(BufferedImage prvaSlika) throws IOException {
+		// Običajni konstruktor.
 		super();
 		this.setBackground(Color.BLACK);
 		addMouseMotionListener(this);
@@ -34,12 +35,13 @@ public class Platno extends JPanel implements MouseMotionListener {
 		oblika = "Krogec";
 		
 		
-		this.slika = getScaledImage(prvaSlika);
+		this.slika = getScaledImage(prvaSlika); // Če je slika prevelika, jo ustrezno zmanjšamo.
 		drevo = new Drevo(slika, 0, 0, slika.getWidth(), slika.getHeight());
-		drevo.razpadlo = true;
+		drevo.razpadlo = true; // Umetno razbijemo prvi koren drevesa, da so na zaslonu že izrisani štirje krogci.
 	}
 	
 	public Platno(boolean vrednost) {
+		// Ta konstruktor pokličemo, če iz direktorija nismo uspeli prebrati nobene slike.
 		super();
 		this.setBackground(Color.BLACK);
 		addMouseMotionListener(this);
@@ -50,6 +52,7 @@ public class Platno extends JPanel implements MouseMotionListener {
 	}
 	
 	private BufferedImage getScaledImage(BufferedImage zacetnaSlika){
+		// Višino in širino slike omejimo na 800 in 1000 pikslov. Če je slika večja, jo zmanjšamo v merilu.
 		double sirina = zacetnaSlika.getWidth();
 		double visina = zacetnaSlika.getHeight();
 
@@ -64,6 +67,7 @@ public class Platno extends JPanel implements MouseMotionListener {
 			}
 		}
 		
+		// Ustvarimo novo prazno sliko ustreznih dimenzij in nanjo prerišemo staro sliko.
 	    BufferedImage koncnaSlika = new BufferedImage((int) sirina, (int) visina, zacetnaSlika.getType());
 	    Graphics2D g2 = koncnaSlika.createGraphics();
 	    g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);

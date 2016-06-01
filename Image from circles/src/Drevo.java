@@ -2,10 +2,10 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 
 public class Drevo {
-	protected int ax, ay, bx, by;
-	protected Drevo zgorajLevo, zgorajDesno, spodajLevo, spodajDesno;
-	protected Color barva;
-	protected boolean razpadlo;
+	protected int ax, ay, bx, by;  // Koordinate dela slike, ki pripada drevesu.
+	protected Drevo zgorajLevo, zgorajDesno, spodajLevo, spodajDesno;  // Poddrevesa.
+	protected Color barva;  // Povprečna barva dela slike, dobimo jo iz poddreves.
+	protected boolean razpadlo;  // Pove, ali je drevo že razpadlo.
 	public Drevo(BufferedImage slika, int ax, int ay, int bx, int by) {
 		this.razpadlo = false;
 		this.ax = ax;
@@ -31,7 +31,7 @@ public class Drevo {
 		
 	}
 		
-	public Color povprecjeBarv(BufferedImage slika, int ax, int ay, int  bx, int by) {
+	private Color povprecjeBarv(BufferedImage slika, int ax, int ay, int  bx, int by) {
 		int rdeca = 0, zelena = 0, modra = 0;
 		int steviloPikslov = (bx - ax) * (by - ay);
 		for (int i = ax; i < bx; i ++) {
@@ -45,7 +45,8 @@ public class Drevo {
 		return new Color(rdeca / steviloPikslov, zelena / steviloPikslov, modra / steviloPikslov);
 	}
 	
-	public static Drevo vsebujeTocko(Drevo drevo, int x, int y) {	
+	public static Drevo vsebujeTocko(Drevo drevo, int x, int y) {
+		// Vrne prvo nerazpadlo drevo, ki vsebujo točko (x, y).
 		if (drevo.zgorajLevo == null && drevo.zgorajDesno == null && drevo.spodajLevo == null && drevo.spodajDesno == null) {
 			return drevo;
 		} else {

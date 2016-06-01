@@ -152,7 +152,6 @@ public class Okno extends JFrame implements ActionListener {
 			if (datoteka.isFile() && 
 				Arrays.asList(dovoljeneKoncnice).contains(datoteka.getName().substring(datoteka.getName().lastIndexOf(".") + 1))) {
 				seznamSlik.add(pot + File.separator + datoteka.getName());
-				System.out.println(pot + File.separator + datoteka.getName());
 			}
 		}
 		kopijaSlik = new ArrayList<String>(seznamSlik);
@@ -252,7 +251,6 @@ public class Okno extends JFrame implements ActionListener {
 				File izbranaDatoteka = fileChooser.getSelectedFile();
 				try {
 					this.pot = izbranaDatoteka.getPath();
-					System.out.println(pot);
 					preberiSlike(pot);
 					naslednjaSlika.doClick();
 				} catch (IOException|NullPointerException e1) {
