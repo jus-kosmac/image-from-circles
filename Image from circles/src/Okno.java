@@ -48,6 +48,7 @@ public class Okno extends JFrame implements ActionListener {
 	
 	public Okno(String pot) throws IOException {
 		super();
+		setResizable(false);
 		
 		this.pot = pot;
 		// Preberemo imena slik iz direktorija.
@@ -102,9 +103,9 @@ public class Okno extends JFrame implements ActionListener {
 		
 		datotekaMenu.add(odpriMenu);
 		datotekaMenu.add(shraniMenu);
-		datotekaMenu.add(izhodMenu);
 		datotekaMenu.add(izberiMenu);
 		datotekaMenu.add(osveziMenu);
+		datotekaMenu.add(izhodMenu);
 		oblikaMenu.add(krogecMenu);
 		oblikaMenu.add(trikotnikMenu);
 		oblikaMenu.add(paralelogramMenu);
